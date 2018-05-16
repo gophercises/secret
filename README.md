@@ -34,6 +34,12 @@ secret get twitter_api_key -k "your-encoding-key"
 
 You can either provide the key via a flag, or have your program read it via an environment variable. That choice is up to you.
 
+### Readers and Writers
+
+In the screencasts we also cover how to use the [cipher.StreamReader](https://golang.org/pkg/crypto/cipher/#StreamReader) and [cipher.StreamWriter](https://golang.org/pkg/crypto/cipher/#StreamWriter) which are incredibly cool because they allow us to just wrap any reader and writer with ciphers that will automatically encrypt and decrypt data being written to a writer or read from a reader. This means that the rest of our code doesn't have to even think about the fact that the data in our file is encrypted - it can just use a reader like it normally and with interface chaining we hide that complexity.
+
+If you code this on your own, I definitely suggest checking out the later videos to see how this all works. Interface chaining is one of the cooler features of Go if you ask me 😀
+
 ## Bonus
 
 Add functionality to list all keys that we have secret values stored for, and add a way to delete a key/value pair.
