@@ -1,24 +1,39 @@
 # Exercise #17: Secrets CLI & API
 
-[![exercise status: in progress](https://img.shields.io/badge/exercise%20status-in%20progress-yellow.svg?style=for-the-badge)](https://gophercises.com/exercises/secret)
+[![exercise status: released](https://img.shields.io/badge/exercise%20status-released-green.svg?style=for-the-badge)](https://gophercises.com/exercises/secret)
 
 ## Exercise details
 
-<!-- TODO(jon): Finish this -->
+Create a package that will store secrets - things like API keys - in an encrypted file. Then create a CLI that will make it possible to set and get these secrets via the command line as well.
 
-```
-secret set twitter_api_key "some-value"
-secret get twitter_api_key # some-value
-```
+*The CLI should mostly just be a wrapper around the `secret` package you create that uses a secrets file in your home directory. For more info on creating a CLI or finding the home directory on different OSes see the [task exercise](https://gophercises.com/exercises/task).*
+
+The way developers use the final version of the `secret` package should look something like this:
 
 ```go
-flag.String(encryptionKey)
-var c secret.Client{
-  EncryptionKey: "some-key"
-}
-c.Get("twitter_api_key") # returns "some-value"
+v := secret.FileVault("encoding-key", "path/to/file")
+err := v.Set("key-name", "key-value")
+value, err := v.Get("key-name")
+fmt.Println(value) // "key-value"
 ```
 
+From the outside the package will look fairly simple, but behind the scenes calling `v.Get` should read and decrypt the file provided and output the value for the provided key. Similarly, `v.Set` should cause your code to open up the file provided, decrypt it, set a new secret key/value pair, then save the file again in an encrypted manner.
+
+Cryptography is easy to get wrong, so in the `p1` branch I have provided an `encrypt` package that has both the `Encrypt` and `Decrypt` functions that can be used to encrypt and decrypt strings for you. If you want, feel free to just jump to that branch and copy the code so you don't have to write this particular part of the application.
+
+*The crypto code used in this exercise is based heavily on the code in the standard library's [CFB Encrypter](https://golang.org/pkg/crypto/cipher/#NewCFBEncrypter) and [CFB Decrypter](https://golang.org/pkg/crypto/cipher/#NewCFBDecrypter) examples.*
+
+The CLI usage should probably end up looking like this:
+
+```bash
+$ secret set twitter_api_key "some value here" -k "your-encoding-key"
+# Value set!
+secret get twitter_api_key -k "your-encoding-key"
+# "some value here"
 ```
-./app -encryption_key="laskdfjasldkfj"
-```
+
+You can either provide the key via a flag, or have your program read it via an environment variable. That choice is up to you.
+
+## Bonus
+
+Add functionality to list all keys that we have secret values stored for, and add a way to delete a key/value pair.
